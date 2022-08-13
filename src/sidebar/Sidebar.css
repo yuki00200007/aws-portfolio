@@ -1,0 +1,27 @@
+.nav {
+  display: flex;
+  justify-content: flex-end;
+
+  background-color: #ffe69a;
+  padding: 24px 30px;
+
+  text-transform: uppercase;
+  font-weight: bolder;
+}
+
+.nav-text {
+  margin-left: 4px;
+}
+
+.nav-item {
+  color: #92B4EC;
+  margin-left: 16px;
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  color: #0078aa;
+  text-decoration: underline;
+}
