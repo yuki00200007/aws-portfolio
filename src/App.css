@@ -4,6 +4,11 @@
   height: 100vh;
 }
 
+.todo {
+  display: flex;
+  justify-content: end;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -35,4 +40,36 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* btn */
+.panel {
+  padding-top: 20px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 500px;
+}
+
+.btn-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 650px;
+}
+
+.start-btn {
+  width: 100px;
+  text-decoration: none;
+  text-align: center;
+  padding: 8px 0;
+  margin-right: 16px;
+  border: 1px #3333 solid;
+  border-radius: 7px;
+  background-color: #ffe69a;
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
 }

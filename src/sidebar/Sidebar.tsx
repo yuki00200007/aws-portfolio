@@ -21,7 +21,7 @@ export function Sidebar(): JSX.Element {
           ]}
         />
         <SidebarItem to="/" text="Blog" />
-        <SidebarItem to="/" text="Contact" />
+        <SidebarItem to="/message" text="Contact" />
       </div>
       <Outlet />
     </header>
