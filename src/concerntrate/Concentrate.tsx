@@ -1,19 +1,36 @@
 import {
-  List,
-  ListItem,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Hidden,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  styled,
 } from "@mui/material";
+import { Box } from "@mui/system";
 import React, { useEffect } from "react";
 import { useList } from "react-use";
-import { Cards } from "./Cards";
+import { Card } from "./Card";
 import "./Concentrate.css";
 
-export function Concentrate() {
+const Root = styled("div")(({ theme }) => ({
+  [theme.breakpoints.up("md")]: {
+    display: "flex",
+  },
+  display: "revert",
+
+  "& .cards": {
+    width: "100%",
+    paddingTop: "80px"
+  },
+}));
+
+export function Concentrate(): JSX.Element {
   const [cards, setCards] = React.useState<string[]>([]);
   useEffect(() => {
     const c = dealCards();
@@ -27,9 +44,9 @@ export function Concentrate() {
   const [finishedCardIndexes, setFinishedCardIndexes] = useList<number>();
   const [player1Points, setPlayer1Points] = React.useState(0);
   const [player2Points, setPlayer2Points] = React.useState(0);
-  const [results, setResults] = useList<number>();
+  const [results, setResults] = useList<{ player1: number; player2: number }>();
 
-  console.log(results);
+  const [resultDialog, setResultDialog] = React.useState<number | null>(null);
 
   const onClickCard = (i: number) => {
     if (!started) {
@@ -41,7 +58,6 @@ export function Concentrate() {
     if (finishedCardIndexes.includes(i)) return;
 
     // reset active cards if active cards already 2
-    console.log("onClickCard", activeCardIndexes);
     if (activeCardIndexes.length > 1) {
       setActiveCardIndexes.reset();
       // change active player
@@ -68,16 +84,28 @@ export function Concentrate() {
   // add result
   useEffect(() => {
     if (finishedCardIndexes.length === 0) return;
+    if (resultDialog) return;
     if (finishedCardIndexes.length === cards.length) {
+      setResults.push({
+        player1: player1Points,
+        player2: player2Points,
+      });
       if (player1Points > player2Points) {
-        setResults.push(0);
+        setResultDialog(0);
       } else if (player1Points < player2Points) {
-        setResults.push(1);
+        setResultDialog(1);
       } else {
-        setResults.push(-1);
+        setResultDialog(-1);
       }
     }
-  }, [finishedCardIndexes, player1Points, player2Points]);
+  }, [
+    finishedCardIndexes,
+    player1Points,
+    player2Points,
+    cards.length,
+    resultDialog,
+    setResults,
+  ]);
 
   const onRestart = () => {
     setActiveCardIndexes.reset();
@@ -92,18 +120,33 @@ export function Concentrate() {
     setStarted(true);
     setMessage("");
   };
+
+  const player1WonCount = results.filter((r) => r.player1 > r.player2).length;
+  const player2WonCount = results.filter((r) => r.player1 < r.player2).length;
+
   return (
     <div className="container">
-      <div style={{ height: "80px" }}></div>
+      <div
+        style={{
+          width: "100%",
+          height: "80px",
+        }}
+      ></div>
       {started && <span>STARTTED!</span>}
       <div className="message">{message}</div>
-      <div className="content-box">
-        <Cards
-          cards={cards}
-          onClickCard={onClickCard}
-          activeCardIndexes={activeCardIndexes}
-          finishedCardIndexes={finishedCardIndexes}
-        />
+      <Root className="content-box">
+        <Box className="cards">
+          {cards.map((card, i) => (
+            <Card
+              key={i}
+              index={i}
+              card={card}
+              onClickCard={() => onClickCard(i)}
+              finished={finishedCardIndexes.includes(i)}
+              active={activeCardIndexes.includes(i)}
+            />
+          ))}
+        </Box>
 
         <div className="panel">
           <div className="players-bar">
@@ -120,38 +163,36 @@ export function Concentrate() {
               {started && <div className="point">{player2Points}</div>}
             </div>
           </div>
-          <TableContainer sx={{ flex: 1 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell></TableCell>
-                  <TableCell>
-                    {`Player 1 : ${results.filter((res) => res === 0).length}`}
-                  </TableCell>
-                  <TableCell>
-                    {`Player 2 : ${results.filter((res) => res === 1).length}`}
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {results.map((row, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell>{idx + 1}</TableCell>
-                    <TableCell>
-                      {row === 0 && "◯"}
-                      {row === 1 && "×"}
-                      {row === -1 && "-"}
-                    </TableCell>
-                    <TableCell>
-                      {row === 1 && "◯"}
-                      {row === 0 && "×"}
-                      {row === -1 && "-"}
-                    </TableCell>
+          <Hidden smDown>
+            <TableContainer sx={{ flex: 1 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell></TableCell>
+                    <TableCell>{`Player 1 : ${player1WonCount}`}</TableCell>
+                    <TableCell>{`Player 2 : ${player2WonCount}`}</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {results.map((row, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>
+                        {row.player1 > row.player2 && "◯"}
+                        {row.player1 < row.player2 && "×"}
+                        {row.player1 === row.player2 && "-"}({row.player1})
+                      </TableCell>
+                      <TableCell>
+                        {row.player1 < row.player2 && "◯"}
+                        {row.player1 > row.player2 && "×"}
+                        {row.player1 === row.player2 && "-"}({row.player2})
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Hidden>
           <div className="btn-bar">
             <div className="start-btn" onClick={onStart}>
               Start
@@ -160,8 +201,24 @@ export function Concentrate() {
               Restart
             </div>
           </div>
+
+          <Dialog
+            open={resultDialog !== null}
+            onClose={() => setResultDialog(null)}
+          >
+            <DialogTitle>
+              {resultDialog === 0 && "Player 1 の勝ち！"}
+              {resultDialog === 1 && "Player 2 の勝ち！"}
+              {resultDialog === -1 && "引き分け！"}
+            </DialogTitle>
+            <DialogActions>
+              <Button onClick={() => setResultDialog(null)} color="primary">
+                OK
+              </Button>
+            </DialogActions>
+          </Dialog>
         </div>
-      </div>
+      </Root>
     </div>
   );
 }
