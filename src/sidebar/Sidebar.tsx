@@ -1,5 +1,4 @@
-import { Drawer, IconButton, List, ListItem } from "@mui/material";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import "./Sidebar.css";
 import { SidebarItem } from "./SidebarItem";
 

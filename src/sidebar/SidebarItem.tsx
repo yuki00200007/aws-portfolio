@@ -17,7 +17,6 @@ interface SidebarItemProps {
 }
 
 export function SidebarItem({
-  home,
   text,
   to,
   subItems,
